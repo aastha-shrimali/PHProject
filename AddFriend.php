@@ -1,52 +1,38 @@
 <?php
+// Start the session to maintain user state
 session_start();
 
-// Assuming $_SESSION['userId'] holds the ID of the currently logged-in user
-$currentUser = $_SESSION['userId'];
+// Use placeholders for the database credentials in this script. Replace them with the actual credentials in your secure environment.
+$servername = "localhost";
+$dbUsername = "root"; // Replace with your actual username
+$dbPassword = "Ayesha@1908"; // Replace with your actual password
+$dbName = "cst8257project"; // Replace with your actual database name
 
-// Placeholder for database connection
-$db = new mysqli('host', 'username', 'password', 'database_name');
+// Connect to the database with mysqli
+$db = new mysqli($servername, $dbUsername, $dbPassword, $dbName);
 
+// Check for a database connection error
+if ($db->connect_error) {
+    die("Connection failed: " . $db->connect_error);
+}
+
+// Initialize a message variable to give feedback to the user
+$message = '';
+
+// Check if the form has been submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Escape the input to protect against SQL injection
     $friendUserId = $db->real_escape_string($_POST['userId']);
+    $currentUser = $_SESSION['user_id']; // The user ID should be stored in session upon login
     
-    // Rule checks
-    if ($friendUserId == $currentUser) {
-        $message = "You cannot send a friend request to yourself.";
-    } elseif (!userIdExists($friendUserId, $db)) {
-        $message = "The user ID does not exist.";
-    } elseif (areAlreadyFriends($currentUser, $friendUserId, $db)) {
-        $message = "You and the user are already friends.";
-    } elseif (existingFriendRequest($currentUser, $friendUserId, $db)) {
-        becomeFriends($currentUser, $friendUserId, $db);
-        $message = "You are now friends with the user.";
-    } else {
-        sendFriendRequest($currentUser, $friendUserId, $db);
-        $message = "Friend request sent.";
-    }
+    // Implement the logic based on the project requirements
+    // ... (Insert your logic here for handling friend requests)
 }
 
-function userIdExists($userId, $db) {
-    // Implement the check if the user ID exists in the database
-}
-
-function areAlreadyFriends($currentUser, $friendUserId, $db) {
-    // Implement the check for existing friendship
-}
-
-function existingFriendRequest($currentUser, $friendUserId, $db) {
-    // Implement the check for existing friend request
-}
-
-function becomeFriends($currentUser, $friendUserId, $db) {
-    // Implement becoming friends (insert into friends table)
-}
-
-function sendFriendRequest($currentUser, $friendUserId, $db) {
-    // Implement sending a friend request (insert into friend requests table)
-}
-
+// Include the header for the page
+include 'header.php'; 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,11 +40,25 @@ function sendFriendRequest($currentUser, $friendUserId, $db) {
     <title>Add Friend</title>
 </head>
 <body>
-    <form method="post">
-        Enter User ID to send a friend request: <input type="text" name="userId">
-        <input type="submit" value="Send Friend Request">
-    </form>
-    <?php if (!empty($message)) echo "<p>$message</p>"; ?>
+    <div class="container">
+        <h1>Add Friend</h1>
+        <p>Welcome <?php echo htmlspecialchars($currentUserName); ?>! (not you? <a href="logout.php">change user here</a>)</p>
+        <form method="post">
+            Enter the ID of the user you want to befriend:<br>
+            ID: <input type="text" name="userId">
+            <input type="submit" value="Send Friend Request">
+        </form>
+        <?php
+        // Display any message to the user
+        if (!empty($message)) {
+            echo "<p>$message</p>";
+        }
+        ?>
+    </div>
+
+    <?php
+    // Include the footer for the page
+    include 'footer.php'; 
+    ?>
 </body>
 </html>
-
